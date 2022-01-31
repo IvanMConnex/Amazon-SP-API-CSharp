@@ -115,6 +115,5 @@ namespace FikaAmazonAPI.ConstructFeed
         {
             return LinqHelper.SerializeObject(envelope);
         }
-
     }
 }

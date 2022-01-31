@@ -12,6 +12,81 @@ namespace FikaAmazonAPI.Search
 {
     public class ParameterBased
     {
+        public virtual Dictionary<string, string> GetParamsDict()
+        {
+            Dictionary<string, string> queryParameters = new Dictionary<string, string>();
+            Type t = this.GetType(); // Where obj is object whose properties you need.
+            /*if (isSandbox)
+            {
+                if (typeof(IHasParameterizedTestCase).IsAssignableFrom(t))
+                {
+                    var queryParametersProperties = t.GetInterfaces().FirstOrDefault(x => x == typeof(IHasParameterizedTestCase)).GetProperties();
+                    var testCasePropertyValue = queryParametersProperties.FirstOrDefault(x => x.Name == nameof(IHasParameterizedTestCase.TestCase))?.GetValue(this);
+                    if (testCasePropertyValue != null && testCasePropertyValue is string testCase)
+                    {
+                        var sandboxQueryParametersPropertyValue = queryParametersProperties.FirstOrDefault(x => x.Name == nameof(IHasParameterizedTestCase.SandboxQueryParameters))?.GetValue(this);
+                        if (sandboxQueryParametersPropertyValue != null && sandboxQueryParametersPropertyValue is Dictionary<string, List<KeyValuePair<string, string>>> sandboxQueryParameters)
+                        {
+                            if (sandboxQueryParameters.ContainsKey(testCase))
+                                return sandboxQueryParameters[testCase];
+                        }
+
+                    }
+                }
+            }*/
+            PropertyInfo[] pi = t.GetProperties();
+            foreach (PropertyInfo p in pi)
+            {
+
+                var value = p.GetValue(this);
+                if (value != null)
+                {
+                    var PropertyType = p.PropertyType;
+                    var propTypeName = p.PropertyType.Name;
+
+                    if (propTypeName == "IsNeedRestrictedDataToken" || propTypeName == "RestrictedDataTokenRequest")
+                        continue;
+
+                    string output = "";
+                    if (PropertyType == typeof(DateTime) || PropertyType == typeof(Nullable<DateTime>))
+                    {
+                        output = ((DateTime)value).ToString(Constants.DateISO8601Format);
+                    }
+                    else if (propTypeName == typeof(String).Name)
+                    {
+                        output = value.ToString();
+                    }
+                    else if (p.PropertyType.IsEnum || IsNullableEnum(p.PropertyType))
+                    {
+                        output = value.ToString();
+                    }
+                    else if (IsEnumerableOfEnum(p.PropertyType) || IsEnumerable(p.PropertyType))
+                    {
+                        var data = ((IEnumerable)value).Cast<object>().Select(a => a.ToString());
+                        if (data.Count() > 0)
+                        {
+                            var result = data.ToArray();
+                            output = String.Join(",", result);
+                        }
+                        else continue;
+
+                    }
+                    else
+                    {
+                        output = JsonConvert.SerializeObject(value);
+                    }
+
+
+                    var propName = p.Name;
+
+                    queryParameters.Add(propName, output);
+                }
+
+            }
+
+            return queryParameters;
+        }
+
         public virtual List<KeyValuePair<string, string>> getParameters(bool isSandbox = false)
         {
             List<KeyValuePair<string, string>> queryParameters = new List<KeyValuePair<string, string>>();

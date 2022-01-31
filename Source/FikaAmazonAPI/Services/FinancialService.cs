@@ -55,7 +55,7 @@ namespace FikaAmazonAPI.Services
             return response.Payload.FinancialEvents;
         }
 
-        private FinancialEvents ListFinancialEventsByOrderId(string orderId)
+        public FinancialEvents ListFinancialEventsByOrderId(string orderId)
         {
             CreateAuthorizedRequest(FinanceApiUrls.ListFinancialEventsByOrderId(orderId), RestSharp.Method.GET);
             var response = ExecuteRequest<ListFinancialEventsResponse>();
@@ -74,6 +74,7 @@ namespace FikaAmazonAPI.Services
             List<FinancialEvents> list = new List<FinancialEvents>();
 
             var parameter = parameterListFinancials.getParameters();
+            //var parameter = parameterListFinancials.GetParamsDict();
 
             CreateAuthorizedRequest(FinanceApiUrls.ListFinancialEvents, RestSharp.Method.GET, parameter);
             var response = ExecuteRequest<ListFinancialEventsResponse>();
